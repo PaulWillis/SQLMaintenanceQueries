@@ -63,4 +63,26 @@ INNER JOIN sysobjects o ON c.id=o.id
 WHERE c.TEXT LIKE '%wordtofind%' AND o.xtype='P'  
 
 
+--Tracks connections made to databases over time.   Schedule this job to run every hour or as needed.
+CREATE PROCEDURE usp_ConnectionsCount
+AS
+
+BEGIN
+	SET NOCOUNT ON;
+	INSERT INTO Connections 
+		SELECT @@ServerName AS server
+		,NAME AS dbname
+		,COUNT(STATUS) AS number_of_connections
+		,GETDATE() AS timestamp
+	FROM sys.databases sd
+		LEFT JOIN master.dbo.sysprocesses sp ON sd.database_id = sp.dbid
+		WHERE database_id NOT BETWEEN 1 AND 4
+	GROUP BY NAME
+END
+
+
+
+
+
+
  
